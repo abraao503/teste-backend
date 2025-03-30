@@ -10,9 +10,15 @@ GROUP BY
     account_id,
     month;
 
-SELECT DISTINCT 
-    account_id 
+SELECT 
+    monthly_summary.account_id,
+    month,
+    total_amount 
 FROM 
-    monthly_summary 
-WHERE 
-    total_amount > 10000;
+    monthly_summary
+WHERE EXISTS (
+    SELECT 1 
+    FROM monthly_summary sub 
+    WHERE sub.account_id = monthly_summary.account_id 
+    AND sub.total_amount > 10000
+);

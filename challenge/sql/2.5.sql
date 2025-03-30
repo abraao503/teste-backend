@@ -8,17 +8,22 @@ INNER JOIN products
     ON sales.product_id = products.id
 INNER JOIN categories 
     ON products.category_id = categories.id
+INNER JOIN (
+    SELECT 
+        categories.id, SUM(sales.quantity) as total_per_category
+    FROM 
+        sales
+    INNER JOIN products
+        ON sales.product_id = products.id
+    INNER JOIN categories
+        ON products.category_id = categories.id
+    GROUP BY
+        categories.id
+    HAVING total_per_category > 100
+) AS category_filter ON categories.id = category_filter.id
 GROUP BY 
     products.id, 
     products.name, 
     categories.id, 
     categories.name
-HAVING categories.id IN (
-    SELECT categories.id
-    FROM sales
-    INNER JOIN products ON sales.product_id = products.id
-    INNER JOIN categories ON products.category_id = categories.id
-    GROUP BY categories.id
-    HAVING SUM(sales.quantity) > 100
-)
 ORDER BY total_sold DESC;
